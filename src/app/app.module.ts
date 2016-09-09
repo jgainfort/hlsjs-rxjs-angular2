@@ -4,19 +4,21 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
-import { HlsPlayerComponent } from './components';
+import { HlsPlayerComponent, LoggerComponent} from './components';
+import { PlayerService } from './shared';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HlsPlayerComponent
+    HlsPlayerComponent,
+    LoggerComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule
   ],
-  providers: [],
+  providers: [PlayerService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
