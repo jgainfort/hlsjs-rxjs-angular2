@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PlayerService, PlayerState } from '../../shared';
+import { PlayerService, PlayerState, PlayerSource } from '../../shared';
 
 @Component({
   selector: 'app-logger',
@@ -16,11 +16,15 @@ export class LoggerComponent implements OnInit {
   }
 
   private onPlayerStateChange(state: PlayerState): void {
-    this.messages.push(`Player State: ${PlayerState[ state ]}`);
+    if (state !== null) {
+      this.messages.push(`Player State: ${PlayerState[ state ]}`);
+    }
   }
 
-  private onPlayerSrcChange(src: string): void {
-    this.messages.push(`Player Source: ${src}`);
+  private onPlayerSrcChange(src: PlayerSource): void {
+    if (src !== null) {
+      this.messages.push(`Player Source: ${src.url}`);
+    }
   }
 
   private initSubscribers(): void {

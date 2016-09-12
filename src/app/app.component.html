@@ -3,4 +3,5 @@
 </h1>
 
 <app-hls-player *ngIf="hlsIsSupported"></app-hls-player>
+<p *ngIf="!hlsIsSupported">Error...</p>
 <app-logger></app-logger>

@@ -1,17 +1,17 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { PlayerService, PlayerModel, PlayerState } from '../../shared';
+import { PlayerService, PlayerState, PlayerSource } from '../../shared';
 
 @Component({
   selector: 'app-hls-player',
   templateUrl: './hls-player.component.html',
-  styleUrls: ['./hls-player.component.css']
+  styleUrls: [ './hls-player.component.css' ]
 })
 export class HlsPlayerComponent implements OnInit {
-  @ViewChild('video')video: HTMLVideoElement;
+  @ViewChild('video') video: HTMLVideoElement;
 
-  private hls: any;
+  private hls: Hls;
 
-  constructor(private playerService: PlayerService) {}
+  constructor(public playerService: PlayerService) { }
 
   ngOnInit() {
     this.video = this.video[ 'nativeElement' ];
@@ -19,16 +19,22 @@ export class HlsPlayerComponent implements OnInit {
     this.hls.attachMedia(this.video);
 
     this.initSubscribers();
-    this.setPlayerListeners();
+    this.setVideoListeners();
+    this.setHlsPlayerListeners();
   }
 
-  loadSrc(src: string): void {
-    this.hls.loadSource(src);
+  loadSrc(src: PlayerSource): void {
+    if (src) {
+      this.hls.loadSource(src.url);
+    }
   }
 
   play(): void {
-    this.playerService.setPlayerState(PlayerState.PLAYING);
     this.video.play();
+  }
+
+  pause(): void {
+    this.video.pause();
   }
 
   private initSubscribers(): void {
@@ -36,11 +42,13 @@ export class HlsPlayerComponent implements OnInit {
       .subscribe(this.loadSrc.bind(this));
   }
 
-  private setPlayerListeners(): void {
+  private setHlsPlayerListeners(): void {
     this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
       console.log('$$$ Hls::MEDIA_ATTACHED');
       this.playerService.setPlayerState(PlayerState.INITIALIZED);
-      this.playerService.setCurrentSrc('http://www.streambox.fr/playlists/test_001/stream.m3u8');
+      if (this.playerService.config.source[ 0 ] && this.playerService.config.source[ 0 ].url !== '') {
+        this.loadSrc(this.playerService.config.source[ 0 ]);
+      }
     });
     this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
       console.log(`$$$ hls::MANIFEST_PARSED::QualityLevels: ${data.levels.length}`);
@@ -48,6 +56,15 @@ export class HlsPlayerComponent implements OnInit {
       this.play();
     });
     this.hls.on(Hls.Events.ERROR, this.onHlsError.bind(this));
+  }
+
+  private setVideoListeners(): void {
+    this.video.addEventListener('playing', () => {
+      this.playerService.setPlayerState(PlayerState.PLAYING);
+    });
+    this.video.addEventListener('pause', () => {
+      this.playerService.setPlayerState(PlayerState.PAUSED);
+    });
   }
 
   private onHlsError(event: any, data: any): void {
