@@ -1,0 +1,7 @@
+export enum PlayerState {
+  UNINITIALIZED,
+  INITIALIZED,
+  PAUSED,
+  PLAYING,
+  ERRORED
+}

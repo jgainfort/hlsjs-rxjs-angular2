@@ -2,6 +2,11 @@
   {{title}}
 </h1>
 
-<app-hls-player *ngIf="hlsIsSupported"></app-hls-player>
-<p *ngIf="!hlsIsSupported">Error...</p>
-<app-logger></app-logger>
+<div *ngIf="configLoaded">
+  <app-hls-player *ngIf="hlsIsSupported" [config]="playerConfig"></app-hls-player>
+  <p *ngIf="!hlsIsSupported">{{playerService.config.errorMessage}}</p>
+  <app-logger></app-logger>
+</div>
+<div *ngIf="!configLoaded">
+  Loading Player...
+</div>

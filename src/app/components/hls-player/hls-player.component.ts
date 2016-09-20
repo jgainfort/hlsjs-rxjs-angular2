@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { PlayerService, PlayerState, PlayerSource } from '../../shared';
+import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { PlayerService, PlayerModel, PlayerState, PlayerSource } from '../../shared';
 
 @Component({
   selector: 'app-hls-player',
@@ -7,7 +7,10 @@ import { PlayerService, PlayerState, PlayerSource } from '../../shared';
   styleUrls: [ './hls-player.component.css' ]
 })
 export class HlsPlayerComponent implements OnInit {
+  @Input() config: PlayerModel;
   @ViewChild('video') video: HTMLVideoElement;
+  width: number;
+  height: number;
 
   private hls: Hls;
 
@@ -46,8 +49,8 @@ export class HlsPlayerComponent implements OnInit {
     this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
       console.log('$$$ Hls::MEDIA_ATTACHED');
       this.playerService.setPlayerState(PlayerState.INITIALIZED);
-      if (this.playerService.config.source[ 0 ] && this.playerService.config.source[ 0 ].url !== '') {
-        this.loadSrc(this.playerService.config.source[ 0 ]);
+      if (this.config.source && this.config.source.url !== '') {
+        this.loadSrc(this.config.source);
       }
     });
     this.hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
@@ -64,6 +67,18 @@ export class HlsPlayerComponent implements OnInit {
     });
     this.video.addEventListener('pause', () => {
       this.playerService.setPlayerState(PlayerState.PAUSED);
+    });
+    this.video.addEventListener('seeked', () => {
+      console.log('$$$ videoElement::seeked');
+    });
+    this.video.addEventListener('seeking', () => {
+      console.log('$$$ videoElement::seeking');
+    });
+    this.video.addEventListener('durationchange', () => {
+      this.playerService.setTotalTime(this.video.duration);
+    });
+    this.video.addEventListener('timeupdate', () => {
+      this.playerService.setCurrentTime(this.video.currentTime);
     });
   }
 
